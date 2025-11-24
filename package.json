@@ -15,6 +15,7 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:weather": "ts-node --transpile-only tests/manual/test-weather-client.ts",
     "migrate:latest": "knex migrate:latest --knexfile src/config/database.config.ts",
     "migrate:rollback": "knex migrate:rollback --knexfile src/config/database.config.ts",
     "seed:run": "knex seed:run --knexfile src/config/database.config.ts",
