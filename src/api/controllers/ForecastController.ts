@@ -2,7 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 
 import { ForecastMapper } from '../../application/mappers/ForecastMapper';
 import { ForecastService } from '../../application/services/ForecastService';
-import { GetForecastQuery } from '../validators/forecast.validator';
+import { Forecast } from '../../domain/entities/Forecast.entity';
+import {
+  GetForecastQuery,
+  PostForecastBody,
+} from '../validators/forecast.validator';
 
 /**
  * Controller for forecast-related HTTP endpoints.
@@ -76,4 +80,75 @@ export class ForecastController {
       next(error);
     }
   }
+
+
+   /**
+   * POST /forecast - Save a forecast to the database.
+   *
+   * @author msoler18
+   * @description Persists a forecast entity to the database. If a forecast
+   * already exists for the same city, state, and date, it will be updated
+   * (handled by database UNIQUE constraint). This endpoint allows explicit
+   * control over what forecasts are cached, preventing automatic database
+   * pollution from external API responses.
+   *
+   * @param req - Express request with validated body
+   * @param res - Express response
+   * @param next - Express next function for error propagation
+   *
+   * @remarks
+   * Request body (validated by Zod):
+   * - city: string (required)
+   * - state: string (required)
+   * - date: string (required, YYYY-MM-DD format)
+   * - temperature: number (required, -100 to 100)
+   * - feelsLike: number (required, -100 to 100)
+   * - conditions: string (required, max 100 chars)
+   * - description: string (required, max 500 chars)
+   * - precipitationChance: number (required, 0-100)
+   * - humidity: number (required, 0-100)
+   * - windSpeed: number (required, 0-500)
+   *
+   * Response format:
+   * { success: true, data: ForecastResponseDTO }
+   *
+   * Status codes:
+   * - 201: Forecast created/updated successfully
+   * - 400: Validation error (handled by validation middleware)
+   * - 500: Database error (handled by error handler middleware)
+   */
+  async saveForecast(
+    req: Request<unknown, unknown, PostForecastBody, unknown>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const forecastData: PostForecastBody = req.body;
+
+      const forecast: Forecast = {
+        city: forecastData.city.toLowerCase().trim(),
+        state: forecastData.state.toLowerCase().trim(),
+        forecastDate: new Date(forecastData.date),
+        temperature: forecastData.temperature,
+        feelsLike: forecastData.feelsLike,
+        conditions: forecastData.conditions,
+        description: forecastData.description,
+        precipitationChance: forecastData.precipitationChance,
+        humidity: forecastData.humidity,
+        windSpeed: forecastData.windSpeed,
+      };
+
+      await this.forecastService.saveForecast(forecast);
+      const forecastDTO = ForecastMapper.toDTO(forecast);
+
+      res.status(201).json({
+        success: true,
+        data: forecastDTO,
+      });
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
+
+
 }
