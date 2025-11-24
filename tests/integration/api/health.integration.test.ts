@@ -2,7 +2,7 @@ import request from 'supertest';
 import { Express } from 'express';
 
 import { createTestApp } from '../../setup/test-server';
-import { createTestDb, cleanDatabase } from '../../setup/test-db';
+import { createTestDb } from '../../setup/test-db';
 import { Knex } from 'knex';
 
 describe('Health API Integration Tests', () => {
@@ -19,8 +19,7 @@ describe('Health API Integration Tests', () => {
     await db.destroy();
   });
 
-  beforeEach(async () => {
-    await cleanDatabase(db);
+  beforeEach(() => {
     app = createTestApp();
   });
 

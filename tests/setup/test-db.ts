@@ -21,10 +21,17 @@ export function createTestDb(): Knex {
  * 
  * @author msoler18
  * @description Truncates all tables to ensure clean state. Should be called
- * in beforeEach or afterEach hooks.
+ * in beforeEach or afterEach hooks. Handles case where table doesn't exist.
  * 
  * @param db - Knex database instance
  */
 export async function cleanDatabase(db: Knex): Promise<void> {
-  await db('forecasts').truncate();
+  try {
+    await db('forecasts').truncate();
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (!errorMessage.includes('does not exist')) {
+      throw error;
+    }
+  }
 }
