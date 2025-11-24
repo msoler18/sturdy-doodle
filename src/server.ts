@@ -15,7 +15,8 @@ import { logger } from './config/logger.config';
 import { ForecastRepository } from './infrastructure/database/repositories/ForecastRepository';
 import { OpenWeatherMapClient } from './infrastructure/weather/clients/OpenWeatherMapClient';
 
-dotenv.config();
+const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
+dotenv.config({ path: envFile });
 
 /**
  * Application server setup and configuration.
