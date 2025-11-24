@@ -1,11 +1,12 @@
 /**
  * Forecast domain entity.
  * 
- * Represents weather forecast data for a specific location and date.
- * Immutable by design - all properties are readonly.
  * @author msoler18
  * @description Represents weather forecast data for a specific location and date.
- * Mapping between them happens in repositories.
+ * Immutable by design - all properties are readonly to prevent accidental mutations
+ * and ensure data integrity across the application. Uses camelCase naming convention
+ * (domain layer standard), while database columns use snake_case. Mapping between
+ * naming conventions happens in the repository layer.
  */
 export interface Forecast {
   readonly id?: number;

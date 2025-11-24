@@ -3,8 +3,12 @@ import { Knex } from 'knex';
 /**
  * Migration: Create forecasts table.
  * 
- * Table stores weather forecast data with unique constraint
- * on (city, state, date) to prevent duplicate entries.
+ * @author msoler18
+ * @description Creates the forecasts table to store weather data. Includes
+ * a unique constraint on (city, state, forecast_date) to prevent duplicate
+ * entries and enable upsert operations. Uses snake_case for column names
+ * following PostgreSQL conventions. Temperature and numeric fields use
+ * DECIMAL(5,2) for precision up to 999.99 with 2 decimal places.
  */
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('forecasts', (table) => {
