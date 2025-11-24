@@ -6,6 +6,7 @@ import {
   type HealthStatus,
   type IHealthService,
 } from '../../domain/services/IHealthService.interface';
+import { IWeatherClient } from '../../domain/services/IWeatherClient.interface';
 
 /**
  * Application service for system health checks.
@@ -26,14 +27,17 @@ export class HealthService implements IHealthService {
    * Creates an instance of HealthService.
    * 
    * @param db - Knex database connection for health checks
+   * @param weatherClient - Weather API client for external API health check
    * @param logger - Winston logger instance
    * 
    * @remarks
    * Dependencies injected for testability. Database connection is used
-   * to verify PostgreSQL is accessible.
+   * to verify PostgreSQL is accessible. Weather client is used to verify
+   * external API connectivity.
    */
   constructor(
     private readonly db: Knex,
+    private readonly weatherClient: IWeatherClient,
     private readonly logger: Logger
   ) {}
 
@@ -45,16 +49,22 @@ export class HealthService implements IHealthService {
    * @remarks
    * Status determination:
    * - "ok": All checks pass
-   * - "degraded": Some checks fail but system is partially functional
+   * - "degraded": Some checks fail but system is partially functional (external API down)
    * - "down": Critical checks fail (database)
    */
   async checkHealth(): Promise<HealthStatus> {
-    const databaseCheck = await this.checkDatabase();
+    const [databaseCheck, externalApiCheck] = await Promise.all([
+      this.checkDatabase(),
+      this.checkExternalApi(),
+    ]);
+
     const uptime = Math.floor((Date.now() - this.startTime) / 1000);
 
     let status: 'ok' | 'degraded' | 'down';
     if (databaseCheck.status === 'error') {
       status = 'down';
+    } else if (externalApiCheck.status === 'error') {
+      status = 'degraded';
     } else {
       status = 'ok';
     }
@@ -65,7 +75,7 @@ export class HealthService implements IHealthService {
       uptime,
       database: databaseCheck,
       externalApis: {
-        openWeather: { status: 'ok' },
+        openWeather: externalApiCheck,
       },
     };
 
@@ -73,6 +83,7 @@ export class HealthService implements IHealthService {
       service: 'HealthService',
       status: healthStatus.status,
       database: databaseCheck.status,
+      externalApi: externalApiCheck.status,
     });
 
     return healthStatus;
@@ -106,6 +117,49 @@ export class HealthService implements IHealthService {
         error instanceof Error ? error.message : 'Unknown database error';
 
       this.logger.error('Database health check failed', {
+        service: 'HealthService',
+        error: errorMessage,
+        responseTime,
+      });
+
+      return {
+        status: 'error',
+        message: errorMessage,
+        responseTime,
+      };
+    }
+  }
+
+  /**
+   * Checks external weather API health.
+   * 
+   * @returns Promise with external API health check result
+   * 
+   * @remarks
+   * Makes a minimal API call to verify OpenWeatherMap is accessible.
+   * Uses a simple location (Fresno, CA) with 1 day forecast to minimize
+   * API quota usage. Catches all errors and returns error status instead
+   * of throwing exceptions. This check is non-critical (degraded status
+   * if it fails, not down).
+   */
+  private async checkExternalApi(): Promise<HealthCheck> {
+    const startTime = Date.now();
+
+    try {
+      await this.weatherClient.getForecast('fresno', 'california', 1);
+
+      const responseTime = Date.now() - startTime;
+
+      return {
+        status: 'ok',
+        responseTime,
+      };
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown API error';
+
+      this.logger.error('External API health check failed', {
         service: 'HealthService',
         error: errorMessage,
         responseTime,
