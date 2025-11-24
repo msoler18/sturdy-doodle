@@ -16,8 +16,8 @@ export const logger = winston.createLogger({
       format: winston.format.combine(
         winston.format.colorize(),
         winston.format.printf(
-          ({ timestamp, level, message, ...meta }) =>
-            `${timestamp} [${level}]: ${message} ${
+          ({ timestamp, level, message, ...meta }: winston.Logform.TransformableInfo) =>
+            `${String(timestamp)} [${String(level)}]: ${String(message)} ${
               Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''
             }`
         )
