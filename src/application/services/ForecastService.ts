@@ -117,7 +117,7 @@ export class ForecastService {
     const forecasts = await this.weatherClient.getForecast(
       normalizedCity,
       normalizedState,
-      3
+      3 
     );
 
     this.logger.info('Successfully fetched forecast from external API', {
@@ -149,5 +149,41 @@ export class ForecastService {
     }
 
     return forecasts;
+  }
+
+  /**
+   * Save a forecast to the database.
+   * 
+   * @param forecast - Forecast entity to persist
+   * @returns Promise that resolves when save is complete
+   * 
+   * @remarks
+   * Why explicit save:
+   * - User has explicit control over what gets cached
+   * - Prevents automatic database pollution
+   * - Allows for manual curation of stored forecasts
+   * - Better audit trail (who saved what, when)
+   * 
+   * Database behavior:
+   * - If forecast already exists (city + state + date) → Updates via UNIQUE constraint
+   * - If new forecast → Inserts new row
+   * - created_at and updated_at handled by database
+   * 
+   * @throws {DatabaseError} If database insert/update fails
+   */
+  async saveForecast(forecast: Forecast): Promise<void> {
+    this.logger.info('Saving forecast to database', {
+      city: forecast.city,
+      state: forecast.state,
+      date: forecast.forecastDate.toISOString(),
+    });
+
+    await this.forecastRepository.save(forecast);
+
+    this.logger.info('Successfully saved forecast to database', {
+      city: forecast.city,
+      state: forecast.state,
+      date: forecast.forecastDate.toISOString(),
+    });
   }
 }
