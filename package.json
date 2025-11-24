@@ -1,0 +1,31 @@
+{
+  "name": "alloy_health",
+  "version": "1.0.0",
+  "description": "Weather API backend service for Alloy Health interview",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "migrate:latest": "knex migrate:latest --knexfile src/config/database.config.ts",
+    "migrate:rollback": "knex migrate:rollback --knexfile src/config/database.config.ts",
+    "seed:run": "knex seed:run --knexfile src/config/database.config.ts",
+    "prepare": "husky install"
+  },
+  "keywords": [],
+  "author": "msoler18",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
