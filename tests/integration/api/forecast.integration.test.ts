@@ -3,7 +3,7 @@ import { Express } from 'express';
 
 import { createTestApp } from '../../setup/test-server';
 import { createTestDb, cleanDatabase } from '../../setup/test-db';
-import knex, { Knex } from 'knex';
+import { Knex } from 'knex';
 
 describe('Forecast API Integration Tests', () => {
   let app: Express;

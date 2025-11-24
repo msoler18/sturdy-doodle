@@ -23,6 +23,7 @@ jest.mock('../../../src/infrastructure/weather/adapters/WeatherResponseAdapter')
 describe('OpenWeatherMapClient', () => {
   let client: OpenWeatherMapClient;
   let mockAxiosInstance: jest.Mocked<AxiosInstance>;
+  let isAxiosErrorSpy: jest.SpyInstance;
   const apiKey = 'test-api-key';
   const baseUrl = 'https://api.openweathermap.org/data/2.5';
   const timeout = 5000;
@@ -36,7 +37,13 @@ describe('OpenWeatherMapClient', () => {
 
     mockedAxios.create = jest.fn().mockReturnValue(mockAxiosInstance);
 
+    isAxiosErrorSpy = jest.spyOn(axios, 'isAxiosError');
+
     client = new OpenWeatherMapClient(apiKey, baseUrl, timeout);
+  });
+
+  afterEach(() => {
+    isAxiosErrorSpy.mockRestore();
   });
 
   describe('constructor', () => {
@@ -199,7 +206,7 @@ describe('OpenWeatherMapClient', () => {
       } as AxiosError;
 
       mockAxiosInstance.get.mockRejectedValue(axiosError);
-      (mockedAxios.isAxiosError as jest.Mock) = jest.fn().mockReturnValue(true);
+      isAxiosErrorSpy.mockReturnValue(true);
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
@@ -227,7 +234,7 @@ describe('OpenWeatherMapClient', () => {
       } as AxiosError;
 
       mockAxiosInstance.get.mockRejectedValue(axiosError);
-      (mockedAxios.isAxiosError as jest.Mock) = jest.fn().mockReturnValue(true);
+      isAxiosErrorSpy.mockReturnValue(true);
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
@@ -249,7 +256,7 @@ describe('OpenWeatherMapClient', () => {
       } as AxiosError;
 
       mockAxiosInstance.get.mockRejectedValue(axiosError);
-      (mockedAxios.isAxiosError as jest.Mock) = jest.fn().mockReturnValue(true);
+      isAxiosErrorSpy.mockReturnValue(true);
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
@@ -272,7 +279,7 @@ describe('OpenWeatherMapClient', () => {
       } as AxiosError;
 
       mockAxiosInstance.get.mockRejectedValue(axiosError);
-      (mockedAxios.isAxiosError as jest.Mock) = jest.fn().mockReturnValue(true);
+      isAxiosErrorSpy.mockReturnValue(true);
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
@@ -292,7 +299,7 @@ describe('OpenWeatherMapClient', () => {
       } as AxiosError;
 
       mockAxiosInstance.get.mockRejectedValue(axiosError);
-      (mockedAxios.isAxiosError as jest.Mock) = jest.fn().mockReturnValue(true);
+      isAxiosErrorSpy.mockReturnValue(true);
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
@@ -316,7 +323,7 @@ describe('OpenWeatherMapClient', () => {
       } as AxiosError;
 
       mockAxiosInstance.get.mockRejectedValue(axiosError);
-      (mockedAxios.isAxiosError as jest.Mock) = jest.fn().mockReturnValue(true);
+      isAxiosErrorSpy.mockReturnValue(true);
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
@@ -339,7 +346,7 @@ describe('OpenWeatherMapClient', () => {
       const unexpectedError = new Error('Unexpected error');
 
       mockAxiosInstance.get.mockRejectedValue(unexpectedError);
-      (mockedAxios.isAxiosError as jest.Mock) = jest.fn().mockReturnValue(false);
+      isAxiosErrorSpy.mockReturnValue(false);
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
@@ -371,7 +378,7 @@ describe('OpenWeatherMapClient', () => {
       } as AxiosError;
 
       mockAxiosInstance.get.mockRejectedValue(axiosError);
-      (mockedAxios.isAxiosError as jest.Mock) = jest.fn().mockReturnValue(true);
+      isAxiosErrorSpy.mockReturnValue(true);
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
