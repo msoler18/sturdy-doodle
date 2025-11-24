@@ -3,13 +3,17 @@ import dotenv from 'dotenv';
 import express, { Express } from 'express';
 import helmet from 'helmet';
 import knex, { Knex } from 'knex';
+import swaggerUi from 'swagger-ui-express';
 
 import { ForecastController } from './api/controllers/ForecastController';
+import { HealthController } from './api/controllers/HealthController';
+import { swaggerSpec } from './api/docs/swagger.config';
 import { errorHandler } from './api/middleware/errorHandler.middleware';
 import { rateLimiter } from './api/middleware/rateLimiter.middleware';
 import { requestLogger } from './api/middleware/requestLogger.middleware';
 import { createForecastRoutes } from './api/routes/forecast.routes';
 import { ForecastService } from './application/services/ForecastService';
+import { HealthService } from './application/services/HealthService';
 import databaseConfig from './config/database.config';
 import { logger } from './config/logger.config';
 import { ForecastRepository } from './infrastructure/database/repositories/ForecastRepository';
@@ -35,7 +39,8 @@ dotenv.config({ path: envFile });
  * 3. Request logger - Log all requests
  * 4. Rate limiter - Protect from abuse
  * 5. Routes - Application endpoints
- * 6. Error handler - MUST be last
+ * 6. Swagger UI - API documentation (development only)
+ * 7. Error handler - MUST be last
  */
 function createApp(): Express {
   const app = express();
@@ -73,13 +78,25 @@ function createApp(): Express {
   );
   const forecastController = new ForecastController(forecastService);
 
+  const healthService = new HealthService(db, weatherClient, logger);
+  const healthController = new HealthController(healthService);
+
   app.use('/api/v1', createForecastRoutes(forecastController));
 
-  app.get('/health', (_req, res) => {
-    res.status(200).json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-    });
+  app.get('/api/v1/health', (req, res, next) => {
+    void healthController.getHealth(req, res, next);
+  });
+
+  // Swagger UI - API documentation
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Weather API Documentation',
+  }));
+
+  // Swagger JSON endpoint
+  app.get('/api/docs.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
   });
 
   app.use(errorHandler);
@@ -105,6 +122,7 @@ function startServer(): void {
       environment: process.env.NODE_ENV || 'development',
       nodeVersion: process.version,
     });
+    logger.info('Swagger UI available at http://localhost:' + PORT + '/api/docs');
   });
 
   process.on('SIGTERM', () => {
