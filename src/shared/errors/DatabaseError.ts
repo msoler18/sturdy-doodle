@@ -40,5 +40,10 @@ export class DatabaseError extends AppError {
       );
     }
 
+    return new DatabaseError(
+      'Database operation failed',
+      'DATABASE_ERROR',
+      { originalError: error.message }
+    );
   }
 }
