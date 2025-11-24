@@ -20,6 +20,53 @@ export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
   /**
+   * @swagger
+   * /api/v1/health:
+   *   get:
+   *     summary: Check system health
+   *     description: |
+   *       Returns overall system health including database and external API connectivity.
+   *       Status codes: 200 for all systems operational, 503 for degraded or down.
+   *     tags: [Health]
+   *     responses:
+   *       200:
+   *         description: All systems operational
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/HealthStatus'
+   *             example:
+   *               status: "ok"
+   *               timestamp: "2025-11-24T10:30:00.000Z"
+   *               uptime: 3600
+   *               database:
+   *                 status: "ok"
+   *                 responseTime: 5
+   *               externalApis:
+   *                 openWeather:
+   *                   status: "ok"
+   *                   responseTime: 120
+   *       503:
+   *         description: System degraded or down
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/HealthStatus'
+   *             example:
+   *               status: "degraded"
+   *               timestamp: "2025-11-24T10:30:00.000Z"
+   *               uptime: 3600
+   *               database:
+   *                 status: "ok"
+   *                 responseTime: 5
+   *               externalApis:
+   *                 openWeather:
+   *                   status: "error"
+   *                   message: "API key invalid"
+   *       500:
+   *         $ref: '#/components/responses/InternalServerError'
+   */
+  /**
    * GET /health - Check system health.
    *
    * @author msoler18

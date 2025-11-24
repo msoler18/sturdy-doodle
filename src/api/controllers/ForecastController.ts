@@ -30,6 +30,65 @@ export class ForecastController {
   constructor(private readonly forecastService: ForecastService) {}
 
   /**
+   * @swagger
+   * /api/v1/forecast:
+   *   get:
+   *     summary: Get weather forecast for a location
+   *     description: Fetches forecast data using cache-first strategy. If date is provided, checks database cache first. If no date or cache miss, calls external weather API. Returns 3-day forecast by default, or single day if date parameter is specified.
+   *     tags: [Forecast]
+   *     parameters:
+   *       - in: query
+   *         name: city
+   *         required: true
+   *         schema:
+   *           type: string
+   *           example: fresno
+   *         description: City name (will be normalized to lowercase)
+   *       - in: query
+   *         name: state
+   *         required: true
+   *         schema:
+   *           type: string
+   *           example: california
+   *         description: State name (will be normalized to lowercase)
+   *       - in: query
+   *         name: date
+   *         required: false
+   *         schema:
+   *           type: string
+   *           format: date
+   *           example: 2025-11-25
+   *         description: Optional specific date in YYYY-MM-DD format for cached forecast lookup
+   *     responses:
+   *       200:
+   *         description: Successful response with forecast data
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/SuccessResponse'
+   *             example:
+   *               success: true
+   *               data:
+   *                 - date: "2025-11-25"
+   *                   temperature: 18.5
+   *                   feelsLike: 17.2
+   *                   conditions: "Partly Cloudy"
+   *                   description: "Partly cloudy with light winds"
+   *                   precipitationChance: 10
+   *                   humidity: 45
+   *                   windSpeed: 12.5
+   *                   city: "fresno"
+   *                   state: "california"
+   *       400:
+   *         $ref: '#/components/responses/ValidationError'
+   *       404:
+   *         $ref: '#/components/responses/NotFound'
+   *       429:
+   *         $ref: '#/components/responses/TooManyRequests'
+   *       500:
+   *         $ref: '#/components/responses/InternalServerError'
+   */
+  /**
    * GET /forecast - Retrieve weather forecast for a location.
    *
    * @author msoler18
@@ -83,7 +142,64 @@ export class ForecastController {
   }
 
 
-   /**
+  /**
+   * @swagger
+   * /api/v1/forecast:
+   *   post:
+   *     summary: Save a forecast to the database
+   *     description: Persists a forecast entity to the database. If a forecast already exists for the same city, state, and date, it will be updated (handled by database UNIQUE constraint). This endpoint allows explicit control over what forecasts are cached, preventing automatic database pollution from external API responses.
+   *     tags: [Forecast]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ForecastRequest'
+   *           example:
+   *             city: "fresno"
+   *             state: "california"
+   *             date: "2025-11-25"
+   *             temperature: 18.5
+   *             feelsLike: 17.2
+   *             conditions: "Partly Cloudy"
+   *             description: "Partly cloudy with light winds"
+   *             precipitationChance: 10
+   *             humidity: 45
+   *             windSpeed: 12.5
+   *     responses:
+   *       201:
+   *         description: Forecast created/updated successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/SuccessResponse'
+   *             example:
+   *               success: true
+   *               data:
+   *                 date: "2025-11-25"
+   *                 temperature: 18.5
+   *                 feelsLike: 17.2
+   *                 conditions: "Partly Cloudy"
+   *                 description: "Partly cloudy with light winds"
+   *                 precipitationChance: 10
+   *                 humidity: 45
+   *                 windSpeed: 12.5
+   *                 city: "fresno"
+   *                 state: "california"
+   *       400:
+   *         $ref: '#/components/responses/ValidationError'
+   *       409:
+   *         description: Forecast already exists for this location and date
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *       429:
+   *         $ref: '#/components/responses/TooManyRequests'
+   *       500:
+   *         $ref: '#/components/responses/InternalServerError'
+   */
+  /**
    * POST /forecast - Save a forecast to the database.
    *
    * @author msoler18
