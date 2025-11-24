@@ -207,7 +207,7 @@ describe('OpenWeatherMapClient', () => {
         'Invalid API key for weather service'
       );
 
-      const error = await client.getForecast(city, state, days).catch((e: unknown) => e);
+      const error = (await client.getForecast(city, state, days).catch((e: unknown) => e)) as ExternalApiError;
       expect(error).toBeInstanceOf(ExternalApiError);
       expect(error.provider).toBe('openweathermap');
       expect(error.statusCode).toBe(401);
@@ -231,7 +231,7 @@ describe('OpenWeatherMapClient', () => {
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
-      const error = await client.getForecast(city, state, days).catch((e: unknown) => e);
+      const error = (await client.getForecast(city, state, days).catch((e: unknown) => e)) as ExternalApiError;
       expect(error.statusCode).toBe(403);
       expect(error.provider).toBe('openweathermap');
     });
@@ -253,7 +253,7 @@ describe('OpenWeatherMapClient', () => {
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
-      const error = await client.getForecast(city, state, days).catch((e: unknown) => e);
+      const error = (await client.getForecast(city, state, days).catch((e: unknown) => e)) as ExternalApiError;
       expect(error.statusCode).toBe(404);
       expect(error.provider).toBe('openweathermap');
       expect(error.message).toContain(`Location not found: ${city}, ${state}`);
@@ -276,7 +276,7 @@ describe('OpenWeatherMapClient', () => {
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
-      const error = await client.getForecast(city, state, days).catch((e: unknown) => e);
+      const error = (await client.getForecast(city, state, days).catch((e: unknown) => e)) as ExternalApiError;
       expect(error.statusCode).toBe(429);
       expect(error.provider).toBe('openweathermap');
       expect(error.message).toContain('Weather API rate limit exceeded');
@@ -296,7 +296,7 @@ describe('OpenWeatherMapClient', () => {
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
-      const error = await client.getForecast(city, state, days).catch((e: unknown) => e);
+      const error = (await client.getForecast(city, state, days).catch((e: unknown) => e)) as ExternalApiError;
       expect(error.statusCode).toBe(408);
       expect(error.provider).toBe('openweathermap');
       expect(error.message).toContain('Weather API request timed out');
@@ -320,7 +320,7 @@ describe('OpenWeatherMapClient', () => {
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
-      const error = await client.getForecast(city, state, days).catch((e: unknown) => e);
+      const error = (await client.getForecast(city, state, days).catch((e: unknown) => e)) as ExternalApiError;
       expect(error.statusCode).toBe(503);
       expect(error.provider).toBe('openweathermap');
       expect(error.message).toContain('Network error while contacting weather service');
@@ -343,7 +343,7 @@ describe('OpenWeatherMapClient', () => {
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
-      const error = await client.getForecast(city, state, days).catch((e: unknown) => e);
+      const error = (await client.getForecast(city, state, days).catch((e: unknown) => e)) as ExternalApiError;
       expect(error.statusCode).toBe(500);
       expect(error.provider).toBe('openweathermap');
       expect(error.message).toContain('Unexpected error while fetching weather data');
@@ -375,7 +375,7 @@ describe('OpenWeatherMapClient', () => {
 
       await expect(client.getForecast(city, state, days)).rejects.toThrow(ExternalApiError);
 
-      const error = await client.getForecast(city, state, days).catch((e: unknown) => e);
+      const error = (await client.getForecast(city, state, days).catch((e: unknown) => e)) as ExternalApiError;
       expect(error.statusCode).toBe(500);
       expect(error.provider).toBe('openweathermap');
       expect(error.message).toContain('Weather API request failed with status 500');
