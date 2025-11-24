@@ -17,6 +17,13 @@ import { AppError } from '../../shared/errors/AppError';
  * @param source - Which part of the request to validate ('query' | 'body' | 'params')
  * @returns Express middleware function
  */
+/**
+ * Extended Request type with validated data property.
+ */
+interface ValidatedRequest extends Request {
+  validated?: unknown;
+}
+
 export const validateRequest = (
   schema: z.ZodSchema,
   source: 'query' | 'body' | 'params' = 'body'
@@ -24,7 +31,14 @@ export const validateRequest = (
   return (req: Request, _res: Response, next: NextFunction): void => {
     try {
       const validated = schema.parse(req[source]);
-      req[source] = validated;
+      
+      (req as ValidatedRequest).validated = validated;
+      
+      if (source === 'body') {
+        Object.assign(req.body, validated);
+      } else if (source === 'params') {
+        Object.assign(req.params, validated);
+      }
 
       next();
     } catch (error) {

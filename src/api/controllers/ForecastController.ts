@@ -60,7 +60,8 @@ export class ForecastController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const { city, state, date } = req.query;
+      const validatedQuery = (req as Request & { validated?: GetForecastQuery }).validated as GetForecastQuery;
+      const { city, state, date } = validatedQuery || req.query;
 
       const dateObj = date ? new Date(date) : undefined;
 
@@ -123,7 +124,9 @@ export class ForecastController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const forecastData: PostForecastBody = req.body;
+      // Use validated data from middleware (body should work with Object.assign, but use validated for consistency)
+      const validatedBody = (req as Request & { validated?: PostForecastBody }).validated as PostForecastBody;
+      const forecastData: PostForecastBody = validatedBody || req.body;
 
       const forecast: Forecast = {
         city: forecastData.city.toLowerCase().trim(),
