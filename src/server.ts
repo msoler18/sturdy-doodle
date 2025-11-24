@@ -5,11 +5,13 @@ import helmet from 'helmet';
 import knex, { Knex } from 'knex';
 
 import { ForecastController } from './api/controllers/ForecastController';
+import { HealthController } from './api/controllers/HealthController';
 import { errorHandler } from './api/middleware/errorHandler.middleware';
 import { rateLimiter } from './api/middleware/rateLimiter.middleware';
 import { requestLogger } from './api/middleware/requestLogger.middleware';
 import { createForecastRoutes } from './api/routes/forecast.routes';
 import { ForecastService } from './application/services/ForecastService';
+import { HealthService } from './application/services/HealthService';
 import databaseConfig from './config/database.config';
 import { logger } from './config/logger.config';
 import { ForecastRepository } from './infrastructure/database/repositories/ForecastRepository';
@@ -73,13 +75,13 @@ function createApp(): Express {
   );
   const forecastController = new ForecastController(forecastService);
 
+  const healthService = new HealthService(db, weatherClient, logger);
+  const healthController = new HealthController(healthService);
+
   app.use('/api/v1', createForecastRoutes(forecastController));
 
-  app.get('/health', (_req, res) => {
-    res.status(200).json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-    });
+  app.get('/api/v1/health', (req, res, next) => {
+    void healthController.getHealth(req, res, next);
   });
 
   app.use(errorHandler);
