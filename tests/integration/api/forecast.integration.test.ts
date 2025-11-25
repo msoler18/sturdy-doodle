@@ -74,7 +74,7 @@ describe('Forecast API Integration Tests', () => {
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('error');
       expect(response.body.error).toHaveProperty('message');
-      expect(response.body.error).toHaveProperty('details');
+      expect(response.body.error).toHaveProperty('metadata');
     });
 
     it('should return 400 when state parameter is missing', async () => {
@@ -154,7 +154,7 @@ describe('Forecast API Integration Tests', () => {
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toHaveProperty('details');
+      expect(response.body.error).toHaveProperty('metadata');
     });
 
     it('should return 400 when date format is invalid', async () => {

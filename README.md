@@ -213,34 +213,79 @@ npm run test:coverage
 npm run test:weather
 ```
 
+### Test Coverage
+
+The project maintains high test coverage with the following metrics:
+
+- **Statements**: 90.73%
+- **Branches**: 81.96%
+- **Functions**: 98.33%
+- **Lines**: 90.39%
+
+Coverage reports are generated in the `coverage/` directory. You can view the HTML report by opening `coverage/lcov-report/index.html` in your browser.
+
+**Coverage Thresholds**: The project enforces minimum coverage thresholds of 80% for branches, functions, lines, and statements. These thresholds are configured in `jest.config.js`.
+
 ## 🏗️ Project Structure
 
 ```
 src/
-├── api/                    # API layer (controllers, routes, middleware)
-│   ├── controllers/       # HTTP request handlers
-│   ├── middleware/        # Express middlewares
-│   ├── routes/            # Route definitions
-│   ├── validators/        # Zod validation schemas
-│   └── docs/              # Swagger/OpenAPI configuration
-├── application/           # Application layer (use cases, DTOs, mappers)
-│   ├── dto/              # Data Transfer Objects
-│   ├── mappers/          # Layer conversion mappers
-│   └── services/         # Business logic services
-├── domain/               # Domain layer (entities, interfaces)
-│   ├── entities/         # Domain entities
-│   ├── repositories/     # Repository interfaces
-│   └── services/         # Service interfaces
-├── infrastructure/       # Infrastructure layer (adapters)
-│   ├── database/        # Database adapters (Knex, repositories)
-│   └── weather/         # External API clients
-├── shared/               # Shared utilities
-│   ├── errors/          # Custom error classes
-│   ├── types/           # Shared types
-│   └── utils/           # Utility functions
-└── config/              # Configuration files
-    ├── database.config.ts
-    └── logger.config.ts
+├── api/                           # API layer (controllers, routes, middleware)
+│   ├── controllers/              # HTTP request handlers
+│   │   ├── ForecastController.ts
+│   │   └── HealthController.ts
+│   ├── middleware/               # Express middlewares
+│   │   ├── errorHandler.middleware.ts
+│   │   ├── rateLimiter.middleware.ts
+│   │   ├── requestLogger.middleware.ts
+│   │   └── validation.middleware.ts
+│   ├── routes/                   # Route definitions
+│   │   └── forecast.routes.ts
+│   ├── validators/               # Zod validation schemas
+│   │   └── forecast.validator.ts
+│   └── docs/                     # Swagger/OpenAPI configuration
+│       └── swagger.config.ts
+├── application/                  # Application layer (use cases, DTOs, mappers)
+│   ├── dto/                      # Data Transfer Objects
+│   │   ├── ForecastRequest.dto.ts
+│   │   └── ForecastResponse.dto.ts
+│   ├── mappers/                  # Layer conversion mappers
+│   │   └── ForecastMapper.ts
+│   └── services/                 # Business logic services
+│       ├── ForecastService.ts
+│       └── HealthService.ts
+├── domain/                       # Domain layer (entities, interfaces)
+│   ├── entities/                 # Domain entities
+│   │   └── Forecast.entity.ts
+│   ├── repositories/             # Repository interfaces
+│   │   └── IForecastRepository.interface.ts
+│   └── services/                # Service interfaces
+│       ├── IHealthService.interface.ts
+│       └── IWeatherClient.interface.ts
+├── infrastructure/               # Infrastructure layer (adapters)
+│   ├── database/                 # Database adapters (Knex, repositories)
+│   │   ├── migrations/           # Database migrations
+│   │   │   ├── 20241124000001_create_forecasts.ts
+│   │   │   └── 20241124000002_add_forecasts_indexes.ts
+│   │   ├── repositories/         # Repository implementations
+│   │   │   └── ForecastRepository.ts
+│   │   └── seeds/                # Database seed files
+│   └── weather/                  # External API clients
+│       ├── adapters/             # API response adapters
+│       │   └── WeatherResponseAdapter.ts
+│       └── clients/              # External API clients
+│           └── OpenWeatherMapClient.ts
+├── shared/                       # Shared utilities
+│   ├── errors/                   # Custom error classes
+│   │   ├── AppError.ts
+│   │   ├── DatabaseError.ts
+│   │   └── ExternalApiError.ts
+│   ├── types/                    # Shared TypeScript types
+│   └── utils/                    # Utility functions
+├── config/                       # Configuration files
+│   ├── database.config.ts        # Knex database configuration
+│   └── logger.config.ts          # Winston logger configuration
+└── server.ts                     # Application entry point
 ```
 
 ## 🏛️ Architecture
