@@ -429,7 +429,7 @@ describe('ForecastRepository', () => {
         conditions: 'Clear',
       };
 
-      const saved = await repository.save(forecast);
+      await repository.save(forecast);
       const retrieved = await repository.findByLocationAndDate(
         'fresno',
         'california',
